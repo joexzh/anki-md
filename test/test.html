@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<header>
+    <style>
+        @import url("../dist/_anki-md.highlight.css");
+        @import url("../dist/_anki-md.katex.css");
+
+        .card {
+            font-family: 'Noto Sans', freesans, sans-serif, monospace;
+            font-size: 20px;
+            color: black;
+            background-color: white;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+
+        #front,
+        #back,
+        #extra {
+            visibility: hidden;
+        }
+
+        code {
+            font-family: 'Noto Sans Mono', freemono, monospace;
+            background-color: #f0f0f0;
+        }
+
+        pre code {
+            border: 1px solid #999;
+            display: block;
+            padding: 10px;
+            overflow: auto;
+        }
+    </style>
+</header>
+
+<body>
+
+    <div id="front"></div>
+
+    <hr id=answer>
+
+    <div id="back"></div>
+
+    <script src="../dist/_anki-md.main.js"></script>
+</body>
+
+</html>

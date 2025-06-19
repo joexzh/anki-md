@@ -1,0 +1,25 @@
+{
+  "name": "anki-md",
+  "version": "0.0.1",
+  "description": "",
+  "license": "ISC",
+  "author": "Joe Tse",
+  "type": "module",
+  "private": true,
+  "module": "main.js",
+  "scripts": {
+    "build": "mkdir -p ./dist && rm ./dist/* ; npx webpack && cp ./src/assets/fonts/* ./dist/ && cp ./src/assets/css/* ./dist/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@mdit/plugin-katex": "^0.23.1",
+    "@viz-js/viz": "^3.14.0",
+    "highlight.js": "^11.11.1",
+    "markdown-it": "^14.1.0",
+    "mermaid": "^11.6.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  }
+}
