@@ -3,64 +3,51 @@ import { katex } from "@mdit/plugin-katex";
 import { loadMhchem } from "@mdit/plugin-katex";
 import hljs from 'highlight.js'
 import mermaid from 'mermaid'
-import { instance as viz_instance } from "@viz-js/viz";
+import { instance as viz_instance } from '@viz-js/viz'
 
-await loadMhchem();
-
-function promiseRender(e) {
-    return promiseRenderMD(replaceHTMLElementsInString(e.innerHTML))
-        .then(text => {
-            e.innerHTML = text;
-            return Promise.all([mermaid.run(), promiseRenderGraphviz()]);
-        });
+async function render(e) {
+    e.innerHTML = await renderMD(replaceHTMLElementsInString(e.innerHTML));
+    return Promise.all([mermaid.run(), renderGraphviz()]);
 }
 
 function show(e) {
     e.style.visibility = "visible";
 }
 
-function promiseRenderMD(text) {
-    return loadMhchem().then(() => {
-        let md = markdownit({
-            typographer: true,
-            html: true,
-            linkify: true,
-            highlight: function (str, lang) {
-                if (!lang) return '';
+async function renderMD(text) {
+    await loadMhchem();
+    let md = markdownit({
+        typographer: true,
+        html: true,
+        linkify: true,
+        highlight: function (str, lang) {
+            if (!lang) return '';
 
-                if (hljs.getLanguage(lang)) {
-                    try {
-                        return hljs.highlight(str, { language: lang }).value;
-                    } catch (__) { }
-                }
-                if (lang.toLowerCase() === 'mermaid') {
-                    return '<pre class="mermaid">' + str + '</pre>';
-                }
-
-                return ''; // use external default escaping
+            if (hljs.getLanguage(lang)) {
+                try {
+                    return hljs.highlight(str, { language: lang }).value;
+                } catch (__) { }
             }
-        });
-        md.use(katex);
-        return md.render(text);
-    });
-}
+            if (lang.toLowerCase() === 'mermaid') {
+                return '<pre class="mermaid">' + str + '</pre>';
+            }
 
-function promiseRenderGraphviz() {
-    return new Promise(resolve => {
-        let eList = document.querySelectorAll('#anki-md [class*="dot"],[class*="graphviz"]');
-        if (!eList.length) {
-            resolve();
-            return;
-        } else {
-            viz_instance().then(viz => {
-                eList.forEach(e => {
-                    e.parentElement.style.overflow = 'auto';
-                    e.replaceWith(viz.renderSVGElement(e.textContent));
-                });
-                resolve();
-            });
+            return ''; // use external default escaping
         }
     });
+    md.use(katex);
+    return md.render(text);
+}
+
+async function renderGraphviz() {
+    let eList = document.querySelectorAll('#anki-md [class*="dot"],[class*="graphviz"]');
+    if (eList.length) {
+        let viz = await viz_instance();
+        eList.forEach(e => {
+            e.parentElement.style.overflow = 'auto';
+            e.replaceWith(viz.renderSVGElement(e.textContent));
+        });
+    }
 }
 
 function replaceHTMLElementsInString(str) {
@@ -77,4 +64,4 @@ function replaceHTMLElementsInString(str) {
     return str.replace(/&amp;/gi, "&");
 }
 
-export { promiseRender, show };
+export { render, show };
