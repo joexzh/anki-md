@@ -7,47 +7,47 @@ import { instance as viz_instance } from "@viz-js/viz";
 
 await loadMhchem();
 
-function render(e) {
-    let text = e.innerHTML;
-    text = replaceHTMLElementsInString(text);
-    text = renderMD(text);
-
-    e.innerHTML = text
-    mermaid.run();
-    promiseRenderGraphviz().then(() => { show(e); });
+function promiseRender(e) {
+    return promiseRenderMD(replaceHTMLElementsInString(e.innerHTML))
+        .then(text => {
+            e.innerHTML = text;
+            return Promise.all([mermaid.run(), promiseRenderGraphviz()]);
+        });
 }
 
 function show(e) {
     e.style.visibility = "visible";
 }
 
-function renderMD(text) {
-    let md = markdownit({
-        typographer: true,
-        html: true,
-        linkify: true,
-        highlight: function (str, lang) {
-            if (!lang) return '';
+function promiseRenderMD(text) {
+    return loadMhchem().then(() => {
+        let md = markdownit({
+            typographer: true,
+            html: true,
+            linkify: true,
+            highlight: function (str, lang) {
+                if (!lang) return '';
 
-            if (hljs.getLanguage(lang)) {
-                try {
-                    return hljs.highlight(str, { language: lang }).value;
-                } catch (__) { }
-            }
-            if (lang.toLowerCase() === 'mermaid') {
-                return '<pre class="mermaid">' + str + '</pre>';
-            }
+                if (hljs.getLanguage(lang)) {
+                    try {
+                        return hljs.highlight(str, { language: lang }).value;
+                    } catch (__) { }
+                }
+                if (lang.toLowerCase() === 'mermaid') {
+                    return '<pre class="mermaid">' + str + '</pre>';
+                }
 
-            return ''; // use external default escaping
-        }
+                return ''; // use external default escaping
+            }
+        });
+        md.use(katex);
+        return md.render(text);
     });
-    md.use(katex);
-    return md.render(text);
 }
 
 function promiseRenderGraphviz() {
     return new Promise(resolve => {
-        let eList = document.querySelectorAll('[class*="dot"],[class*="graphviz"]');
+        let eList = document.querySelectorAll('#anki-md [class*="dot"],[class*="graphviz"]');
         if (!eList.length) {
             resolve();
             return;
@@ -77,4 +77,4 @@ function replaceHTMLElementsInString(str) {
     return str.replace(/&amp;/gi, "&");
 }
 
-export { render };
+export { promiseRender, show };

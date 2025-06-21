@@ -1,11 +1,15 @@
-import { render } from './main.js'
+import { promiseRender, show } from './main.js'
+
+let renderPromises = [];
 
 let front = document.getElementById('front');
 if (front) {
-    render(front)
+    renderPromises.push(promiseRender(front));
 }
 
 let back = document.getElementById('back');
 if (back) {
-    render(back)
+    renderPromises.push(promiseRender(back));
 }
+
+Promise.all(renderPromises).then(() => { show(document.getElementById('anki-md')) });

@@ -7,17 +7,23 @@
   color: black;
   background-color: white;
 }
-table, th, td {
-	border: 1px solid black;
-	border-collapse: collapse;
+
+table,
+th,
+td {
+  border: 1px solid black;
+  border-collapse: collapse;
 }
-#front, #back, #extra {
-	visibility: hidden;
+
+#anki-md {
+  visibility: hidden;
 }
+
 code {
   font-family: 'Noto Sans Mono', freemono, monospace;
   background-color: #f0f0f0;
 }
+
 pre code {
   border: 1px solid #999;
   display: block;
