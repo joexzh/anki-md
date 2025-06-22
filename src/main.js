@@ -1,20 +1,35 @@
 import markdownit from 'markdown-it';
-import { katex } from "@mdit/plugin-katex";
-import { loadMhchem } from "@mdit/plugin-katex";
+import { katex, loadMhchem } from "@mdit/plugin-katex";
 import hljs from 'highlight.js'
 import mermaid from 'mermaid'
 import { instance as viz_instance } from '@viz-js/viz'
 
-async function render(e) {
-    e.innerHTML = await renderMD(replaceHTMLElementsInString(e.innerHTML));
-    return Promise.all([mermaid.run(), renderGraphviz()]);
+mermaid.initialize({ startOnLoad: false });
+
+let es = [];
+(function (es) {
+    let front = document.getElementById('front');
+    if (front) {
+        es.push(front);
+    }
+    let back = document.getElementById('back');
+    if (back) {
+        es.push(back);
+    }
+})(es);
+
+async function render() {
+    await renderMD(es);
+    let container = document.getElementById('anki-md');
+    return Promise.all([mermaid.run(), renderGraphviz(container)])
+        .then(() => show(container));
 }
 
 function show(e) {
     e.style.visibility = "visible";
 }
 
-async function renderMD(text) {
+async function renderMD(es) {
     await loadMhchem();
     let md = markdownit({
         typographer: true,
@@ -36,11 +51,14 @@ async function renderMD(text) {
         }
     });
     md.use(katex);
-    return md.render(text);
+
+    es.forEach(e => {
+        e.innerHTML = md.render(replaceHTMLElementsInString(e.innerHTML))
+    });
 }
 
-async function renderGraphviz() {
-    let eList = document.querySelectorAll('#anki-md [class*="dot"],[class*="graphviz"]');
+async function renderGraphviz(container) {
+    let eList = container.querySelectorAll(`[class*="dot"],[class*="graphviz"]`);
     if (eList.length) {
         let viz = await viz_instance();
         eList.forEach(e => {
@@ -64,4 +82,4 @@ function replaceHTMLElementsInString(str) {
     return str.replace(/&amp;/gi, "&");
 }
 
-export { render, show };
+export { render };
