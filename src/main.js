@@ -6,21 +6,9 @@ import { instance as viz_instance } from '@viz-js/viz'
 
 mermaid.initialize({ startOnLoad: false });
 
-let es = [];
-(function (es) {
-    let front = document.getElementById('front');
-    if (front) {
-        es.push(front);
-    }
-    let back = document.getElementById('back');
-    if (back) {
-        es.push(back);
-    }
-})(es);
-
 async function render() {
-    await renderMD(es);
     let container = document.getElementById('anki-md');
+    await renderMD(container.querySelectorAll('.anki-md'));
     return Promise.all([mermaid.run(), renderGraphviz(container)])
         .then(() => show(container));
 }
